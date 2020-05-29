@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Route("v1/auth")]
-    public class AuthController : ControllerBase
+    [Route("[controller]")]
+    [AllowAnonymous]
+    public class ConnectController : ControllerBase
     {
         [HttpPost]
-        [Route("login")]
-        [AllowAnonymous]
-        public async Task<ActionResult<dynamic>> Authenticate([FromBody] User model)
+        [Route("Token")]
+        public ActionResult<dynamic> GetToken([FromBody] UserModel model)
         {
             var user = UserRepository.Get(model.Username, model.Password);
 
