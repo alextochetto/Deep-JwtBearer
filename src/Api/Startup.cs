@@ -1,5 +1,6 @@
 using System.Text;
 using Api.Configuration;
+using Api.Services;
 using Infrastructure.Extensions.Security;
 using Infrastructure.Security.Azure.KeyVault;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,38 +27,14 @@ namespace Api
             services.AddCors();
             services.AddControllers();
 
+            services.AddScoped<ITokenService, TokenService>();
+            
             services.Configure<KeyVaultSettings>(Configuration.GetSection(nameof(KeyVaultSettings)));
-
+            
             services.AddSecurityAzureKeyVault(Configuration);
 
-            var key = Encoding.ASCII.GetBytes(Settings.Secret);
-
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.RequireHttpsMetadata = false;
-                    options.SaveToken = true;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(key),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
-                });
-            services.AddAuthorization(options =>
-                {
-                    options.AddPolicy("Trusted", builder =>
-                    {
-                        builder.RequireAuthenticatedUser();
-                        builder.RequireRole("Admin");
-                        builder.RequireClaim("Feature", "Create");
-                    });
-                });
+            services.AddJwtAuthentication(Configuration);
+            services.AddJwtAuthorization();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

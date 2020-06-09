@@ -11,16 +11,22 @@ namespace Api.Controllers
     [AllowAnonymous]
     public class ConnectController : ControllerBase
     {
+        private readonly ITokenService _tokenService;
+        public ConnectController(ITokenService tokenService)
+        {
+            _tokenService = tokenService;
+        }
+        
         [HttpPost]
         [Route("Token")]
-        public ActionResult<dynamic> GetToken([FromBody] UserModel model)
+        public async Task<ActionResult<dynamic>> GetToken([FromBody] UserModel model)
         {
             var user = UserRepository.Get(model.Username, model.Password);
 
             if (user is null)
                 return NotFound(new { Message = "Invalid user or password" });
 
-            var token = TokenService.Generate(user);
+            var token = await _tokenService.Generate(user);
             user.Password = string.Empty;
 
             return new { User = user, Token = token };

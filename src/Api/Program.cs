@@ -30,6 +30,18 @@ namespace Api
                         .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
                     config.AddEnvironmentVariables();
+                    
+                    var configuration = config.Build();
+
+                    // var azureServiceTokenProvider = new AzureServiceTokenProvider();
+                    // var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+
+                    // config.AddAzureKeyVault(builtConfig["KeyVaultSettings:KeyVaultUrl"], keyVaultClient, new DefaultKeyVaultSecretManager());
+                    
+                    config.AddAzureKeyVault(configuration["KeyVaultSettings:KeyVaultUrl"], 
+                        configuration["KeyVaultSettings:AzureApplicationClientId"],  
+                        configuration["KeyVaultSettings:AzureApplicationClientSecret"],
+                        new DefaultKeyVaultSecretManager());
                 })
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
     }

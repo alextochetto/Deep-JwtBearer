@@ -6,15 +6,36 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
+using Infrastructure.Extensions.Security;
+using Infrastructure.Security.Azure.KeyVault;
+using Microsoft.Extensions.Options;
 
 namespace Api.Services
 {
-    public static class TokenService
+    public interface ITokenService
     {
-        public static string Generate(UserModel userModel)
+        Task<string> Generate(UserModel userModel);
+    }
+    
+    public class TokenService : ITokenService
+    {
+        private readonly IKeyVaultSecretManager _keyVaultSecretManager;
+        private readonly KeyVaultSettings _keyVaultSettings;
+        private readonly BearerSecurityKey _bearerSecurityKey;
+        public TokenService(IOptionsMonitor<KeyVaultSettings> keyVaultSettings, IOptionsMonitor<BearerSecurityKey> bearerSecurityKey,
+            IKeyVaultSecretManager keyVaultSecretManager)
+        {
+            _keyVaultSecretManager = keyVaultSecretManager;
+            _keyVaultSettings = keyVaultSettings.CurrentValue;
+            _bearerSecurityKey = bearerSecurityKey.CurrentValue;
+        }
+        
+        public async Task<string> Generate(UserModel userModel)
         {
             var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(Settings.Secret);
+            // var key = await _keyVaultSecretManager.Get(_bearerSecurityKey.JwtSecurityKey);
+            var key = Encoding.ASCII.GetBytes(_bearerSecurityKey.JwtSecurityKey);
             var securityTokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]

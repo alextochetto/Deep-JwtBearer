@@ -1,3 +1,4 @@
+using System.Text;
 using System.Threading.Tasks;
 using Azure.Security.KeyVault.Secrets;
 
@@ -17,10 +18,10 @@ namespace Infrastructure.Security.Azure.KeyVault
             await _secretClient.SetSecretAsync(secretName, secretValue);
         }
 
-        public async Task<string> Get(string secretName)
+        public async Task<byte[]> Get(string secretName)
         {
             KeyVaultSecret secret = await _secretClient.GetSecretAsync(secretName);
-            return secret != null ? secret.Value : string.Empty;
+            return secret != null ? Encoding.ASCII.GetBytes(secret.Value) : null;
         }
 
         public async Task Update(string secretName, string secretValue)
