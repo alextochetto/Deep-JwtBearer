@@ -1,17 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Azure.Core;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
+using Infrastructure.Security.Azure.KeyVault;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Api
 {
@@ -33,14 +24,9 @@ namespace Api
                     
                     var configuration = config.Build();
 
-                    // var azureServiceTokenProvider = new AzureServiceTokenProvider();
-                    // var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
-
-                    // config.AddAzureKeyVault(builtConfig["KeyVaultSettings:KeyVaultUrl"], keyVaultClient, new DefaultKeyVaultSecretManager());
-                    
-                    config.AddAzureKeyVault(configuration["KeyVaultSettings:KeyVaultUrl"], 
-                        configuration["KeyVaultSettings:AzureApplicationClientId"],  
-                        configuration["KeyVaultSettings:AzureApplicationClientSecret"],
+                    config.AddAzureKeyVault(configuration[$"{nameof(KeyVaultSettings)}:{nameof(KeyVaultSettings.KeyVaultUrl)}"], 
+                        configuration[$"{nameof(KeyVaultSettings)}:{nameof(KeyVaultSettings.AzureApplicationClientId)}"],  
+                        configuration[$"{nameof(KeyVaultSettings)}:{nameof(KeyVaultSettings.AzureApplicationClientSecret)}"],
                         new DefaultKeyVaultSecretManager());
                 })
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });

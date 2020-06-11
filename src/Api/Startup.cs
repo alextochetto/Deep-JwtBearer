@@ -1,15 +1,11 @@
-using System.Text;
-using Api.Configuration;
 using Api.Services;
 using Infrastructure.Extensions.Security;
 using Infrastructure.Security.Azure.KeyVault;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Api
 {
