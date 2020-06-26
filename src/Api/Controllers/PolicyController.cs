@@ -13,6 +13,30 @@ namespace Api.Controllers
         public ActionResult<dynamic> GetPolicy()
         {
             return true;
-        } 
+        }
+
+        [HttpGet]
+        [Route("rolemanager")]
+        [Authorize(Roles = "Manager")]
+        public ActionResult<dynamic> GetRoleManager()
+        {
+            return true;
+        }
+
+        [HttpGet]
+        [Route("roles")]
+        [Authorize(Roles = "Admin,Manager")]
+        public ActionResult<dynamic> GetRole()
+        {
+            return true;
+        }
+
+        [HttpGet]
+        [Route("create")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "CanCreate")]
+        public ActionResult<dynamic> Create()
+        {
+            return true;
+        }
     }
 }

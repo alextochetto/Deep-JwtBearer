@@ -14,6 +14,11 @@ namespace Infrastructure.Extensions.Security
                     builder.RequireRole("Admin");
                     builder.RequireClaim("Feature", "Create");
                 });
+                options.AddPolicy("CanCreate", builder =>
+                {
+                   builder.RequireAuthenticatedUser();
+                   builder.RequireClaim("Feature", "Create"); 
+                });
             });
         }
     }
