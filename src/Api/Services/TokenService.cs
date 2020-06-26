@@ -15,20 +15,22 @@ namespace Api.Services
     {
         Task<string> Generate(UserModel userModel);
     }
-    
+
     public class TokenService : ITokenService
     {
         private readonly IKeyVaultSecretManager _keyVaultSecretManager;
         private readonly KeyVaultSettings _keyVaultSettings;
         private readonly BearerSecurityKey _bearerSecurityKey;
-        public TokenService(IOptionsMonitor<KeyVaultSettings> keyVaultSettings, IOptionsMonitor<BearerSecurityKey> bearerSecurityKey,
+
+        public TokenService(IOptionsMonitor<KeyVaultSettings> keyVaultSettings,
+            IOptionsMonitor<BearerSecurityKey> bearerSecurityKey,
             IKeyVaultSecretManager keyVaultSecretManager)
         {
             _keyVaultSecretManager = keyVaultSecretManager;
             _keyVaultSettings = keyVaultSettings.CurrentValue;
             _bearerSecurityKey = bearerSecurityKey.CurrentValue;
         }
-        
+
         public async Task<string> Generate(UserModel userModel)
         {
             var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
@@ -40,12 +42,14 @@ namespace Api.Services
                 {
                     new Claim(ClaimTypes.Name, userModel.Username),
                     new Claim(ClaimTypes.Role, userModel.Role),
-                    new Claim("Feature", userModel.Feature),
                 }),
                 Expires = DateTime.UtcNow.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };
+            if (!string.IsNullOrEmpty(userModel.Feature))
+                securityTokenDescriptor.Subject.AddClaim(new Claim("Feature", userModel.Feature));
+            
             var token = jwtSecurityTokenHandler.CreateToken(securityTokenDescriptor);
             return jwtSecurityTokenHandler.WriteToken(token);
         }
